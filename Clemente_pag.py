@@ -1,8 +1,6 @@
+from pulp import LpProblem, LpMinimize, LpVariable, LpStatus, lpSum, value
 import streamlit as st
 import pandas as pd
-from pulp import LpProblem, LpMinimize, LpVariable, LpStatus, lpSum, value
-import warnings
-warnings.filterwarnings('ignore') 
 
 profesores = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 materias = ['k', 'j', 'o', 'r', 'p', 'm', 'n', 's', 'q']
@@ -95,6 +93,7 @@ prob = LpProblem("Asignación de horarios", LpMinimize)
 x = LpVariable.dicts("x", ((profesor, materia, horario, salon) for profesor in profesores for materia in materias for horario in horarios for salon in salones), cat='Binary')
 
 costo_total = lpSum([x[profesor, materia, horario, salon] * (costos_profesor[profesor] + costos_materia[materia] + costos_horario[horario] + costos_salon[salon]) for profesor in profesores for materia in materias for horario in horarios for salon in salones])
+costo_total = costo_total * 1000
 
 prob += costo_total
 
@@ -120,7 +119,19 @@ for profesor in profesores:
                 if not profesor_puede_impartir_materia(profesor, materia) or not profesor_disponible(profesor, horario):
                     prob += x[profesor, materia, horario, salon] == 0
 
+prob.msg = 1
 status = prob.solve()
+
+if LpStatus[status] == 'Optimal':
+    asignaciones = [(profesor, materia, horario, salon) for profesor in profesores for materia in materias for horario in horarios for salon in salones if x[profesor, materia, horario, salon].value() == 1]
+
+    for asignacion in asignaciones:
+        profesor, materia, horario, salon = asignacion
+        print(f"{profesor} imparte {materia} en el horario {horario} en el salón {salon}")
+
+    print(f"Costo total: {value(costo_total)}")
+else:
+    print("No se encontró una solución óptima.")
 
 st.set_page_config(
     page_title='Horario Óptimo',
@@ -230,4 +241,4 @@ if LpStatus[status] == 'Optimal':
 
     st.write(f"Costo total: {value(costo_total)*1000:,}")
 else:
-    st.write("No se encontró una solución óptima.")
+    print("No se encontró una solución óptima.")
