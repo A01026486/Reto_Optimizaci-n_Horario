@@ -130,7 +130,7 @@ st.set_page_config(
 st.title("Calculadora para optimizar horarios")
 
 def ObtenerHorario():
-    horario = pd.read_excel("Calculadora de horarios-1.xlsx", usecols = "A:J", skipfooter=22-10)
+    horario = pd.read_excel("Horario.xlsx")
     return horario
 
 st.markdown("Esta calculadora sirve para optimizar horarios. Se usó la librería PuLP en Python")
