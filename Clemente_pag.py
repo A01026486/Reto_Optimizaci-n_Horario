@@ -239,6 +239,6 @@ if LpStatus[status] == 'Optimal':
     df = pd.DataFrame(dic)
     st.write(df)
 
-    st.write(f"Costo total: {value(costo_total)*1000:,}")
+    st.write(f"Costo total: {value(costo_total):,}")
 else:
     print("No se encontró una solución óptima.")
